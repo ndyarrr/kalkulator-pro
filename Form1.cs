@@ -12,45 +12,74 @@ namespace WinFormsApp1
         List<string> daftarOperasi = new List<string>();
         bool setelahSamaDengan = false;
         bool inputBaru = false;
+        bool angkaNegatif = false;
 
         string tampilan = "";
         string operasi = "";
+
         public Form1()
         {
             InitializeComponent();
         }
-
-        private void Hitung()
+        private void TambahOperasi(string op, string simbol)
         {
-            if (operasi == "+")
+            if (setelahSamaDengan)
             {
-                hasil += angkaSekarang;
+                angkaSekarang = double.Parse(tampilan);
+
+                daftarAngka.Clear();
+                daftarOperasi.Clear();
+
+                setelahSamaDengan = false;
+                inputBaru = false;
             }
-            else if (operasi == "-")
+
+            // Kalau sedang memasukkan angka negatif,
+            // jangan izinkan operator masuk
+            if (angkaNegatif)
             {
-                hasil -= angkaSekarang;
+                return;
             }
-            else if (operasi == "*")
+
+            // Kalau sebelumnya sudah menekan operator,
+            // ganti operator terakhir
+            if (inputBaru)
             {
-                hasil *= angkaSekarang;
+                if (daftarOperasi.Count > 0)
+                {
+                    daftarOperasi[daftarOperasi.Count - 1] = op;
+
+                    // Hapus operator terakhir dari tampilan
+                    if (tampilan.EndsWith("×") ||
+                        tampilan.EndsWith("÷") ||
+                        tampilan.EndsWith("+") ||
+                        tampilan.EndsWith("-"))
+                    {
+                        tampilan = tampilan.Substring(0, tampilan.Length - 1);
+                    }
+
+                    tampilan += simbol;
+                    textBox1.Text = tampilan;
+
+                    return;
+                }
             }
-            else if (operasi == "/")
-            {
-                hasil /= angkaSekarang;
-            }
+
+            daftarAngka.Add(angkaSekarang);
+            daftarOperasi.Add(op);
+
+            tampilan += simbol;
+            textBox1.Text = tampilan;
+
+            inputBaru = true;
         }
+        
 
         private void buttonPlus_Click(object sender, EventArgs e)
         {
 
-            daftarAngka.Add(angkaSekarang);
-            daftarOperasi.Add("+");
+            TambahOperasi("+", "+");
 
-            tampilan += "+";
-            textBox1.Text = tampilan;
-
-            inputBaru = true;
-            setelahSamaDengan = false;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -77,9 +106,10 @@ namespace WinFormsApp1
                 tampilan = "";
 
                 setelahSamaDengan = false;
+                angkaNegatif = false;
             }
 
-            if (inputBaru)
+            if (inputBaru && !angkaNegatif)
             {
                 angkaSekarang = 0;
                 inputBaru = false;
@@ -87,15 +117,38 @@ namespace WinFormsApp1
 
             angkaSekarang = angkaSekarang * 10 + double.Parse(tombol.Text);
 
+            if (angkaNegatif)
+            {
+                angkaSekarang = -Math.Abs(angkaSekarang);
+                angkaNegatif = false;
+            }
+
             tampilan += tombol.Text;
+
             textBox1.Text = tampilan;
+
+            inputBaru = false;
         }
 
         private void buttonSamadengan_Click(object sender, EventArgs e)
         {
-            if (inputBaru)
+            if (inputBaru && !angkaNegatif)
             {
                 return;
+            }
+
+            if (angkaNegatif)
+            {
+                angkaSekarang = -Math.Abs(angkaSekarang);
+
+                if (tampilan.EndsWith("(-"))
+                {
+                    tampilan += ")";
+                    textBox1.Text = tampilan;
+                }
+
+                angkaNegatif = false;
+                inputBaru = false;
             }
 
             daftarAngka.Add(angkaSekarang);
@@ -153,39 +206,68 @@ namespace WinFormsApp1
 
         private void buttonMinus_Click(object sender, EventArgs e)
         {
-            daftarAngka.Add(angkaSekarang);
-            daftarOperasi.Add("-");
+            // Minus di awal = angka negatif
+            if (tampilan == "")
+            {
+                tampilan = "-";
+                textBox1.Text = tampilan;
 
-            tampilan += "-";
-            textBox1.Text = tampilan;
+                angkaNegatif = true;
+                inputBaru = true;
 
-            inputBaru = true;
-            setelahSamaDengan = false;
+                return;
+            }
+
+            // Kalau sedang setelah operator
+            if (inputBaru && daftarOperasi.Count > 0)
+            {
+                string operasiTerakhir = daftarOperasi[daftarOperasi.Count - 1];
+
+                // Kalau operator terakhir +, ×, ÷
+                // lalu tekan - = angka negatif
+                if (operasiTerakhir == "+" ||
+                    operasiTerakhir == "*" ||
+                    operasiTerakhir == "/")
+                {
+                    tampilan += "(-";
+                    textBox1.Text = tampilan;
+
+                    angkaSekarang = 0;
+                    angkaNegatif = true;
+                    inputBaru = true;
+
+                    return;
+                }
+
+                // Kalau operator terakhir -
+                // jangan buat (- lagi
+                if (operasiTerakhir == "-")
+                {
+                    tampilan += "(-";
+                    textBox1.Text = tampilan;
+
+                    angkaSekarang = 0;
+                    angkaNegatif = true;
+                    inputBaru = true;
+
+                    return;
+                }
+            }
+
+            // Minus biasa
+            TambahOperasi("-", "-");
         }
 
         private void buttonBagi_Click(object sender, EventArgs e)
         {
-            daftarAngka.Add(angkaSekarang);
-            daftarOperasi.Add("/");
-
-            tampilan += "÷";
-            textBox1.Text = tampilan;
-
-            inputBaru = true;
-            setelahSamaDengan = false;
+            TambahOperasi("/", "÷");
         }
 
         private void buttonKali_Click(object sender, EventArgs e)
         {
-            daftarAngka.Add(angkaSekarang);
-            daftarOperasi.Add("*");
-
-            tampilan += "×";
-            textBox1.Text = tampilan;
-
-            inputBaru = true;
-            setelahSamaDengan = false;
+            TambahOperasi("*", "×");
         }
+        
 
         private void buttonC_Click(object sender, EventArgs e)
         {
@@ -207,17 +289,39 @@ namespace WinFormsApp1
 
         private void buttonTrash_Click(object sender, EventArgs e)
         {
-            if (tampilan.Length > 0)
+            if (tampilan.Length == 0)
             {
-                tampilan = tampilan.Substring(0, tampilan.Length - 1);
+                return;
+            }
 
-                textBox1.Text = tampilan;
+            // Hapus blok angka negatif: (-3)
+            int posisiKurung = tampilan.LastIndexOf("(-");
 
-                if (angkaSekarang > 0)
+            if (posisiKurung >= 0)
+            {
+                // Kalau (-...) adalah bagian paling belakang
+                if (tampilan.EndsWith(")") || angkaNegatif)
                 {
-                    angkaSekarang = Math.Floor(angkaSekarang / 10);
+                    tampilan = tampilan.Substring(0, posisiKurung);
+
+                    angkaSekarang = 0;
+                    angkaNegatif = false;
+                    inputBaru = true;
+
+                    textBox1.Text = tampilan;
+                    return;
                 }
             }
+
+            // Hapus angka biasa satu digit
+            tampilan = tampilan.Substring(0, tampilan.Length - 1);
+
+            if (angkaSekarang > 0)
+            {
+                angkaSekarang = Math.Floor(angkaSekarang / 10);
+            }
+
+            textBox1.Text = tampilan;
         }
     }
 }

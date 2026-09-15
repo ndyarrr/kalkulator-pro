@@ -171,7 +171,7 @@
             // 
             // buttonSamadengan
             // 
-            buttonSamadengan.Location = new Point(425, 263);
+            buttonSamadengan.Location = new Point(689, 383);
             buttonSamadengan.Name = "buttonSamadengan";
             buttonSamadengan.Size = new Size(126, 113);
             buttonSamadengan.TabIndex = 12;
@@ -201,7 +201,7 @@
             // 
             // buttonKali
             // 
-            buttonKali.Location = new Point(557, 383);
+            buttonKali.Location = new Point(425, 264);
             buttonKali.Name = "buttonKali";
             buttonKali.Size = new Size(126, 113);
             buttonKali.TabIndex = 15;
@@ -211,7 +211,7 @@
             // 
             // buttonC
             // 
-            buttonC.Location = new Point(689, 145);
+            buttonC.Location = new Point(689, 264);
             buttonC.Name = "buttonC";
             buttonC.Size = new Size(126, 113);
             buttonC.TabIndex = 16;
@@ -221,7 +221,7 @@
             // 
             // buttonTrash
             // 
-            buttonTrash.Location = new Point(689, 264);
+            buttonTrash.Location = new Point(689, 145);
             buttonTrash.Name = "buttonTrash";
             buttonTrash.Size = new Size(126, 113);
             buttonTrash.TabIndex = 17;

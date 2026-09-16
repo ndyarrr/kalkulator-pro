@@ -20,6 +20,7 @@ namespace WinFormsApp1
         public Form1()
         {
             InitializeComponent();
+            textBox1.Text = "0";
         }
         private void TambahOperasi(string op, string simbol)
         {
